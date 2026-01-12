@@ -196,6 +196,7 @@ export default function AntiLibrary() {
   const [items, setItems] = useState([]);
   const [newUrl, setNewUrl] = useState('');
   const [newTitle, setNewTitle] = useState('');
+  const [newTags, setNewTags] = useState([]);
   const [filter, setFilter] = useState('unread');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -203,17 +204,29 @@ export default function AntiLibrary() {
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [toast, setToast] = useState('');
+  const [quickSaveMode, setQuickSaveMode] = useState(false);
+  const [quickSaveStatus, setQuickSaveStatus] = useState(null); // 'saving', 'success', 'error'
 
   // Check for URL params (for bookmarklet/shortcut)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const urlParam = params.get('url');
     const titleParam = params.get('title');
+    const tagsParam = params.get('tags');
+    const autosave = params.get('autosave');
     
     if (urlParam) {
       setNewUrl(decodeURIComponent(urlParam));
       if (titleParam) setNewTitle(decodeURIComponent(titleParam));
-      setIsAdding(true);
+      if (tagsParam) {
+        const tags = decodeURIComponent(tagsParam).split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+        setNewTags(tags);
+      }
+      if (autosave === 'true') {
+        setQuickSaveMode(true);
+      } else {
+        setIsAdding(true);
+      }
       // Clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
@@ -290,10 +303,14 @@ export default function AntiLibrary() {
   };
 
   // Add new item
-  const addItem = async () => {
-    if (!newUrl.trim()) return;
+  const addItem = async (options = {}) => {
+    const urlToSave = options.url || newUrl;
+    const titleToSave = options.title || newTitle;
+    const tagsToSave = options.tags || newTags;
     
-    let url = newUrl.trim();
+    if (!urlToSave.trim()) return { success: false, error: 'No URL' };
+    
+    let url = urlToSave.trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       url = 'https://' + url;
     }
@@ -302,25 +319,46 @@ export default function AntiLibrary() {
     const { error } = await supabase.from('items').insert({
       user_id: user.id,
       url,
-      title: newTitle.trim() || extractDomain(url),
+      title: titleToSave.trim() || extractDomain(url),
       type: detectContentType(url),
       domain: extractDomain(url),
+      tags: tagsToSave.length > 0 ? tagsToSave : null,
       saved_at: new Date().toISOString(),
       is_read: false,
       is_archived: false,
     });
 
+    setSyncing(false);
+    
     if (error) {
       showToast('Failed to save');
       console.error(error);
+      return { success: false, error: error.message };
     } else {
       showToast('Saved to AntiLibrary');
       setNewUrl('');
       setNewTitle('');
+      setNewTags([]);
       setIsAdding(false);
+      return { success: true };
     }
-    setSyncing(false);
   };
+  
+  // Quick save for iOS shortcut (auto-save mode)
+  const quickSave = useCallback(async () => {
+    if (!user || !newUrl) return;
+    
+    setQuickSaveStatus('saving');
+    const result = await addItem({ url: newUrl, title: newTitle, tags: newTags });
+    setQuickSaveStatus(result.success ? 'success' : 'error');
+  }, [user, newUrl, newTitle, newTags]);
+  
+  // Trigger quick save when in quick save mode and user is loaded
+  useEffect(() => {
+    if (quickSaveMode && user && newUrl && !quickSaveStatus) {
+      quickSave();
+    }
+  }, [quickSaveMode, user, newUrl, quickSaveStatus, quickSave]);
 
   // Update item
   const updateItem = async (id, updates) => {
@@ -400,6 +438,54 @@ export default function AntiLibrary() {
   // Show auth screen if not logged in
   if (!user && !loading) {
     return <AuthScreen />;
+  }
+
+  // Quick save mode UI (for iOS shortcut)
+  if (quickSaveMode) {
+    return (
+      <div style={styles.quickSaveContainer}>
+        <div style={styles.quickSaveCard}>
+          {quickSaveStatus === 'saving' && (
+            <>
+              <LoadingSpinner />
+              <p style={styles.quickSaveText}>Saving to AntiLibrary...</p>
+            </>
+          )}
+          {quickSaveStatus === 'success' && (
+            <>
+              <div style={styles.quickSaveIcon}>✓</div>
+              <p style={styles.quickSaveText}>Saved!</p>
+              <p style={styles.quickSaveSubtext}>{newTitle || extractDomain(newUrl)}</p>
+              {newTags.length > 0 && (
+                <div style={styles.quickSaveTags}>
+                  {newTags.map(tag => (
+                    <span key={tag} style={styles.quickSaveTag}>{tag}</span>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+          {quickSaveStatus === 'error' && (
+            <>
+              <div style={styles.quickSaveIconError}>✗</div>
+              <p style={styles.quickSaveText}>Failed to save</p>
+              <button 
+                onClick={() => setQuickSaveMode(false)} 
+                style={styles.quickSaveButton}
+              >
+                Open AntiLibrary
+              </button>
+            </>
+          )}
+          {!quickSaveStatus && loading && (
+            <>
+              <LoadingSpinner />
+              <p style={styles.quickSaveText}>Loading...</p>
+            </>
+          )}
+        </div>
+      </div>
+    );
   }
 
   if (loading) {
@@ -642,6 +728,88 @@ const styles = {
     fontFamily: "'Newsreader', 'Source Serif Pro', Georgia, serif",
     color: '#1a1a1a',
   },
+  
+  // Quick Save styles (iOS shortcut)
+  quickSaveContainer: {
+    minHeight: '100vh',
+    backgroundColor: '#f8f7f4',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '20px',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  quickSaveCard: {
+    backgroundColor: '#fff',
+    padding: '48px 40px',
+    borderRadius: '20px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+    textAlign: 'center',
+    maxWidth: '320px',
+    width: '100%',
+  },
+  quickSaveIcon: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '50%',
+    backgroundColor: '#e8f8e8',
+    color: '#2d7d32',
+    fontSize: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 16px',
+  },
+  quickSaveIconError: {
+    width: '64px',
+    height: '64px',
+    borderRadius: '50%',
+    backgroundColor: '#fce8e8',
+    color: '#c53030',
+    fontSize: '32px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0 auto 16px',
+  },
+  quickSaveText: {
+    fontSize: '18px',
+    fontWeight: '600',
+    margin: '16px 0 8px',
+    color: '#1a1a1a',
+  },
+  quickSaveSubtext: {
+    fontSize: '14px',
+    color: '#666',
+    margin: '0 0 12px',
+    wordBreak: 'break-word',
+  },
+  quickSaveTags: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '6px',
+    justifyContent: 'center',
+    marginTop: '12px',
+  },
+  quickSaveTag: {
+    padding: '4px 12px',
+    backgroundColor: '#e8e6e3',
+    borderRadius: '12px',
+    fontSize: '12px',
+    color: '#555',
+  },
+  quickSaveButton: {
+    marginTop: '16px',
+    padding: '12px 24px',
+    backgroundColor: '#1a1a1a',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+  },
+  
   loadingState: {
     display: 'flex',
     justifyContent: 'center',
