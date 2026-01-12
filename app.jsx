@@ -7,7 +7,32 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = 'https://useriguacvbzucjddtke.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_waTr_uFc60uGxrGPDtClSw_UCuCxo8s';
 
+// Chrome Extension ID - get this from chrome://extensions after installing the extension
+// Look for the "ID" field under your AntiLibrary extension
+const CHROME_EXTENSION_ID = 'YOUR_EXTENSION_ID_HERE';
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Sync session to Chrome extension
+const syncSessionToExtension = (session) => {
+  if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage && CHROME_EXTENSION_ID !== 'YOUR_EXTENSION_ID_HERE') {
+    try {
+      chrome.runtime.sendMessage(
+        CHROME_EXTENSION_ID,
+        { type: 'SUPABASE_SESSION', session },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.log('Extension sync: Extension not installed or unreachable');
+          } else if (response?.success) {
+            console.log('Extension sync: Session synced successfully');
+          }
+        }
+      );
+    } catch (e) {
+      console.log('Extension sync: Failed to communicate with extension');
+    }
+  }
+};
 
 // ============================================
 // UTILITY FUNCTIONS
@@ -198,13 +223,22 @@ export default function AntiLibrary() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchItems();
-      else setLoading(false);
+      if (session?.user) {
+        fetchItems();
+        // Sync session to Chrome extension
+        syncSessionToExtension(session);
+      } else {
+        setLoading(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (session?.user) fetchItems();
+      if (session?.user) {
+        fetchItems();
+        // Sync session to Chrome extension on login or token refresh
+        syncSessionToExtension(session);
+      }
     });
 
     return () => subscription.unsubscribe();

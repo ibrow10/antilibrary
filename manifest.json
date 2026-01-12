@@ -4,6 +4,9 @@
   "description": "Save articles, videos, and podcasts to your AntiLibrary",
   "version": "1.0",
   "permissions": ["activeTab", "storage"],
+  "externally_connectable": {
+    "matches": ["https://antilibrary.netlify.app/*"]
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
