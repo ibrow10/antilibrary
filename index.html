@@ -1346,6 +1346,9 @@
           hide($('#auth-screen'));
           show($('#app-screen'));
           await fetchItems();
+          
+          // Sync session to Chrome extension if available
+          syncSessionToExtension(session);
         } else {
           // Handle sign out or session expiry
           currentUser = null;
@@ -1354,6 +1357,26 @@
           show($('#auth-screen'));
         }
       });
+    };
+    
+    // Sync auth session to Chrome extension
+    const syncSessionToExtension = (session) => {
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
+        // Try to send to extension (extension ID will vary)
+        try {
+          // For same-origin communication when loaded as extension page
+          chrome.runtime.sendMessage({ type: 'SUPABASE_SESSION', session }, (response) => {
+            if (chrome.runtime.lastError) {
+              // Extension not available, that's fine
+              console.log('Extension not available for session sync');
+            } else {
+              console.log('Session synced to extension');
+            }
+          });
+        } catch (e) {
+          // Extension communication failed, that's okay
+        }
+      }
     };
 
     // ============================================

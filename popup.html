@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8f7f4;
+      color: #1a1a1a;
+    }
+    
+    .container {
+      padding: 16px;
+    }
+    
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #e8e6e3;
+    }
+    
+    .logo {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    
+    .status {
+      margin-left: auto;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: #e8f8e8;
+      color: #2d7d32;
+    }
+    
+    .status.error {
+      background: #fce8e8;
+      color: #c53030;
+    }
+    
+    .status.loading {
+      background: #e8e8e8;
+      color: #666;
+    }
+    
+    /* Auth Section */
+    .auth-section {
+      text-align: center;
+      padding: 20px 0;
+    }
+    
+    .auth-message {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    
+    .auth-btn {
+      padding: 10px 20px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    
+    /* Preview */
+    .preview {
+      background: white;
+      border: 1px solid #e8e6e3;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .preview-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .preview-url {
+      font-size: 11px;
+      color: #888;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    /* Tags */
+    .tags-section {
+      margin-bottom: 12px;
+    }
+    
+    .tags-label {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 6px;
+      display: block;
+    }
+    
+    .tags-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px;
+      background: white;
+      border: 1px solid #e8e6e3;
+      border-radius: 6px;
+      min-height: 36px;
+      cursor: text;
+    }
+    
+    .tags-wrapper:focus-within {
+      border-color: #1a1a1a;
+    }
+    
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: #e8e6e3;
+      border-radius: 12px;
+      font-size: 11px;
+    }
+    
+    .tag-remove {
+      cursor: pointer;
+      opacity: 0.6;
+      font-size: 12px;
+    }
+    
+    .tag-remove:hover {
+      opacity: 1;
+    }
+    
+    .tags-input {
+      border: none;
+      outline: none;
+      font-size: 12px;
+      flex: 1;
+      min-width: 60px;
+      padding: 2px 0;
+      background: transparent;
+    }
+    
+    .suggestions {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      background: white;
+      border: 1px solid #e8e6e3;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-height: 120px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+    
+    .suggestions.visible {
+      display: block;
+    }
+    
+    .suggestion {
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    .suggestion:hover {
+      background: #f5f5f5;
+    }
+    
+    .suggestion-new {
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+    
+    /* Save Button */
+    .save-btn {
+      width: 100%;
+      padding: 12px;
+      background: #1a1a1a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .save-btn:hover {
+      background: #333;
+    }
+    
+    .save-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .save-btn.success {
+      background: #2d7d32;
+    }
+    
+    /* Spinner */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Settings link */
+    .footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e8e6e3;
+      text-align: center;
+    }
+    
+    .settings-link {
+      font-size: 11px;
+      color: #888;
+      text-decoration: none;
+    }
+    
+    .settings-link:hover {
+      color: #1a1a1a;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="logo">📚 AntiLibrary</span>
+      <span id="status" class="status hidden"></span>
+    </div>
+    
+    <!-- Auth Required -->
+    <div id="auth-section" class="auth-section hidden">
+      <p class="auth-message">Sign in to save pages</p>
+      <button id="open-app-btn" class="auth-btn">Open AntiLibrary</button>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="main-section" class="hidden">
+      <div class="preview">
+        <div id="preview-title" class="preview-title">Loading...</div>
+        <div id="preview-url" class="preview-url"></div>
+      </div>
+      
+      <div class="tags-section">
+        <label class="tags-label">Tags (optional)</label>
+        <div class="tags-wrapper" id="tags-wrapper">
+          <input type="text" id="tags-input" class="tags-input" placeholder="Add tags...">
+        </div>
+        <div id="suggestions" class="suggestions"></div>
+      </div>
+      
+      <button id="save-btn" class="save-btn">
+        Save to AntiLibrary
+      </button>
+    </div>
+    
+    <div class="footer">
+      <a href="#" id="settings-link" class="settings-link">Open AntiLibrary →</a>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
