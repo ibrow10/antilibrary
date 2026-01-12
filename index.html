@@ -1208,6 +1208,8 @@
         if (error.message?.includes('JWT') || error.code === 'PGRST301') {
           showToast('Session expired. Please sign in again.');
           signOut();
+        } else if (error.message?.includes('column') || error.code === '42703') {
+          showToast('Database needs update. Run the SQL migration in SETUP.md');
         } else {
           showToast('Failed to save: ' + (error.message || 'Unknown error'));
         }
