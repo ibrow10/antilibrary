@@ -592,6 +592,9 @@ export default function AntiLibrary() {
             <button onClick={() => setIsAdding(!isAdding)} style={styles.addButton}>
               {isAdding ? '×' : '+'}
             </button>
+            <button onClick={() => setShowShortcutSetup(true)} style={styles.iosButton}>
+              📱 iOS
+            </button>
             <button onClick={signOut} style={styles.signOutButton}>
               Sign out
             </button>
@@ -1029,6 +1032,16 @@ const styles = {
     borderRadius: '8px',
     backgroundColor: '#fff',
     color: '#666',
+    cursor: 'pointer',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  iosButton: {
+    padding: '10px 14px',
+    fontSize: '13px',
+    border: '1px solid #007aff',
+    borderRadius: '8px',
+    backgroundColor: '#fff',
+    color: '#007aff',
     cursor: 'pointer',
     fontFamily: "'Inter', -apple-system, sans-serif",
   },
