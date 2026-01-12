@@ -580,7 +580,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_waTr_uFc60uGxrGPDtClSw_UCuCxo8s';
 
     // Initialize Supabase
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ============================================
     // STATE
@@ -703,7 +703,7 @@
     // DATA OPERATIONS
     // ============================================
     const fetchItems = async () => {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('items')
         .select('*')
         .order('saved_at', { ascending: false });
@@ -727,7 +727,7 @@
 
       const title = $('#new-title').value.trim();
 
-      const { error } = await supabase.from('items').insert({
+      const { error } = await supabaseClient.from('items').insert({
         user_id: currentUser.id,
         url,
         title: title || extractDomain(url),
@@ -752,7 +752,7 @@
     };
 
     const updateItem = async (id, updates) => {
-      const { error } = await supabase.from('items').update(updates).eq('id', id);
+      const { error } = await supabaseClient.from('items').update(updates).eq('id', id);
       if (error) {
         showToast('Failed to update');
         console.error(error);
@@ -762,7 +762,7 @@
     };
 
     const deleteItem = async (id) => {
-      const { error } = await supabase.from('items').delete().eq('id', id);
+      const { error } = await supabaseClient.from('items').delete().eq('id', id);
       if (error) {
         showToast('Failed to delete');
         console.error(error);
@@ -800,7 +800,7 @@
       btn.disabled = true;
       btn.textContent = 'Sending...';
 
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabaseClient.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: window.location.origin + window.location.pathname },
       });
@@ -818,7 +818,7 @@
     };
 
     const signOut = async () => {
-      await supabase.auth.signOut();
+      await supabaseClient.auth.signOut();
       currentUser = null;
       items = [];
       hide($('#app-screen'));
@@ -835,7 +835,7 @@
       const titleParam = params.get('title');
 
       // Check auth
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
 
       hide($('#loading-screen'));
 
@@ -858,7 +858,7 @@
       }
 
       // Auth state listener
-      supabase.auth.onAuthStateChange(async (event, session) => {
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
         if (session?.user) {
           currentUser = session.user;
           $('#user-email').textContent = currentUser.email;
