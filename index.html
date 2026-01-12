@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AntiLibrary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg: #f8f7f4;
+      --card: #ffffff;
+      --border: #e8e6e3;
+      --text: #1a1a1a;
+      --text-muted: #666666;
+      --text-faint: #999999;
+      --accent: #1a1a1a;
+    }
+    
+    body {
+      font-family: 'Newsreader', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    
+    /* Auth Screen */
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .auth-card {
+      background: var(--card);
+      padding: 48px 40px;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .auth-logo {
+      font-size: 32px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+    
+    .auth-tagline {
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 32px;
+    }
+    
+    .auth-input {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .auth-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .auth-button {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .auth-button:disabled {
+      opacity: 0.6;
+    }
+    
+    .auth-message {
+      margin-top: 16px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .auth-footer {
+      margin-top: 24px;
+      font-size: 13px;
+      color: var(--text-faint);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Header */
+    .header {
+      margin-bottom: 24px;
+    }
+    
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .logo {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    
+    .user-email {
+      font-size: 12px;
+      color: var(--text-faint);
+      font-family: 'Inter', sans-serif;
+      margin-top: 4px;
+    }
+    
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .add-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .sign-out-btn {
+      padding: 10px 16px;
+      font-size: 13px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Add Form */
+    .add-form {
+      background: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+      animation: slideIn 0.2s ease;
+    }
+    
+    .add-form.hidden { display: none; }
+    
+    .input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .save-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    /* Search */
+    .search-box {
+      position: relative;
+      margin-bottom: 16px;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-faint);
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 14px 14px 14px 44px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      font-family: inherit;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    
+    .filter-group {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+      padding: 8px 14px;
+      font-size: 13px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    
+    .filter-btn.active {
+      background: var(--accent);
+      color: white;
+    }
+    
+    .type-btn {
+      padding: 8px 10px;
+      font-size: 13px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    
+    .type-btn.active {
+      background: var(--border);
+      color: var(--text);
+    }
+    
+    /* Items */
+    .items-list {
+      list-style: none;
+    }
+    
+    .item-card {
+      background: var(--card);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    
+    .item-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+    
+    .item-link {
+      display: block;
+      padding: 20px;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .item-link.read {
+      opacity: 0.55;
+    }
+    
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .type-badge.article { background: #e8f4f8; color: #0077a3; }
+    .type-badge.video { background: #fce8e8; color: #c53030; }
+    .type-badge.podcast { background: #e8f8e8; color: #2d7d32; }
+    .type-badge.tweet { background: #e8e8e8; color: #1a1a1a; }
+    .type-badge.linkedin { background: #e8f0f8; color: #0a66c2; }
+    .type-badge.other { background: #f0f0f0; color: #666; }
+    
+    .item-date {
+      font-size: 12px;
+      color: var(--text-faint);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .item-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      line-height: 1.35;
+      letter-spacing: -0.2px;
+    }
+    
+    .item-domain {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 4px;
+      padding: 10px 16px;
+      border-top: 1px solid #f0f0f0;
+      background: #fafafa;
+      align-items: center;
+    }
+    
+    .type-select {
+      padding: 6px 10px;
+      font-size: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      margin-right: auto;
+    }
+    
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      transition: all 0.15s;
+    }
+    
+    .action-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    
+    .empty-title {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    
+    .empty-subtitle {
+      font-size: 14px;
+      color: var(--text-faint);
+      line-height: 1.6;
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      z-index: 1000;
+      animation: fadeIn 0.2s ease;
+    }
+    
+    .toast.hidden { display: none; }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-faint);
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      font-style: italic;
+    }
+    
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+    
+    .spinner {
+      animation: spin 1s linear infinite;
+      margin-right: 12px;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } }
+    
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen" class="loading">
+    <svg class="spinner" width="20" height="20" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity="0.25"/>
+      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+    Loading AntiLibrary...
+  </div>
+
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-container hidden">
+    <div class="auth-card">
+      <h1 class="auth-logo">AntiLibrary</h1>
+      <p class="auth-tagline">Your unread collection awaits</p>
+      <form id="auth-form">
+        <input type="email" id="auth-email" class="auth-input" placeholder="your@email.com" required>
+        <button type="submit" class="auth-button" id="auth-submit">Send Magic Link</button>
+      </form>
+      <p id="auth-message" class="auth-message hidden"></p>
+      <p class="auth-footer">No password needed. We'll email you a sign-in link.</p>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app-screen" class="hidden">
+    <div class="container">
+      <!-- Toast -->
+      <div id="toast" class="toast hidden"></div>
+
+      <!-- Header -->
+      <header class="header">
+        <div class="header-top">
+          <div>
+            <h1 class="logo">AntiLibrary</h1>
+            <p class="user-email" id="user-email"></p>
+          </div>
+          <div class="header-actions">
+            <button class="add-btn" id="toggle-add-btn">+</button>
+            <button class="sign-out-btn" id="sign-out-btn">Sign out</button>
+          </div>
+        </div>
+
+        <!-- Add Form -->
+        <div id="add-form" class="add-form hidden">
+          <input type="url" id="new-url" class="input" placeholder="Paste URL here...">
+          <input type="text" id="new-title" class="input" placeholder="Title (optional)">
+          <button class="save-btn" id="save-btn">Save to AntiLibrary</button>
+        </div>
+
+        <!-- Search -->
+        <div class="search-box">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="search-input" class="search-input" placeholder="Search your library...">
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+          <div class="filter-group" id="status-filters">
+            <button class="filter-btn active" data-filter="unread">Unread (<span id="count-unread">0</span>)</button>
+            <button class="filter-btn" data-filter="all">All (<span id="count-all">0</span>)</button>
+            <button class="filter-btn" data-filter="archived">Archived (<span id="count-archived">0</span>)</button>
+          </div>
+          <div class="filter-group" id="type-filters">
+            <button class="type-btn active" data-type="all">All</button>
+            <button class="type-btn" data-type="article">📄</button>
+            <button class="type-btn" data-type="video">▶</button>
+            <button class="type-btn" data-type="podcast">🎙</button>
+            <button class="type-btn" data-type="tweet">𝕏</button>
+            <button class="type-btn" data-type="linkedin">in</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Items List -->
+      <main>
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-icon">📚</div>
+          <p class="empty-title" id="empty-title">Your AntiLibrary is empty</p>
+          <p class="empty-subtitle">The books you haven't read are more valuable than the ones you have.<br>Start saving articles, videos, and podcasts.</p>
+        </div>
+        <ul id="items-list" class="items-list"></ul>
+      </main>
+
+      <footer class="footer">
+        AntiLibrary • The unread shapes who you are
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // CONFIGURATION - Replace with your Supabase credentials
+    // ============================================
+    const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+    // Initialize Supabase
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ============================================
+    // STATE
+    // ============================================
+    let currentUser = null;
+    let items = [];
+    let statusFilter = 'unread';
+    let typeFilter = 'all';
+    let searchQuery = '';
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    const detectContentType = (url) => {
+      const lower = url.toLowerCase();
+      if (lower.includes('youtube.com') || lower.includes('youtu.be') || lower.includes('vimeo.com')) return 'video';
+      if (lower.includes('podcast') || lower.includes('spotify.com/episode') || lower.includes('anchor.fm')) return 'podcast';
+      if (lower.includes('twitter.com') || lower.includes('x.com')) return 'tweet';
+      if (lower.includes('linkedin.com')) return 'linkedin';
+      return 'article';
+    };
+
+    const extractDomain = (url) => {
+      try { return new URL(url).hostname.replace('www.', ''); }
+      catch { return ''; }
+    };
+
+    const formatDate = (timestamp) => {
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0) return 'Today';
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    };
+
+    // ============================================
+    // DOM HELPERS
+    // ============================================
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => document.querySelectorAll(sel);
+    const show = (el) => el.classList.remove('hidden');
+    const hide = (el) => el.classList.add('hidden');
+
+    const showToast = (msg) => {
+      const toast = $('#toast');
+      toast.textContent = msg;
+      show(toast);
+      setTimeout(() => hide(toast), 2500);
+    };
+
+    // ============================================
+    // RENDER
+    // ============================================
+    const updateCounts = () => {
+      $('#count-all').textContent = items.length;
+      $('#count-unread').textContent = items.filter(i => !i.is_read && !i.is_archived).length;
+      $('#count-archived').textContent = items.filter(i => i.is_archived).length;
+    };
+
+    const renderItems = () => {
+      const filtered = items.filter(item => {
+        if (statusFilter === 'unread' && (item.is_read || item.is_archived)) return false;
+        if (statusFilter === 'archived' && !item.is_archived) return false;
+        if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          return item.title?.toLowerCase().includes(q) || 
+                 item.url?.toLowerCase().includes(q) ||
+                 item.domain?.toLowerCase().includes(q);
+        }
+        return true;
+      });
+
+      const list = $('#items-list');
+      const empty = $('#empty-state');
+
+      if (filtered.length === 0) {
+        list.innerHTML = '';
+        show(empty);
+        if (items.length === 0) {
+          $('#empty-title').textContent = 'Your AntiLibrary is empty';
+        } else {
+          $('#empty-title').textContent = 'No items match your filters';
+        }
+      } else {
+        hide(empty);
+        list.innerHTML = filtered.map(item => `
+          <li class="item-card" data-id="${item.id}">
+            <a href="${item.url}" target="_blank" rel="noopener" class="item-link ${item.is_read ? 'read' : ''}" data-id="${item.id}">
+              <div class="item-header">
+                <span class="type-badge ${item.type}">${item.type}</span>
+                <span class="item-date">${formatDate(item.saved_at)}</span>
+              </div>
+              <h3 class="item-title">${item.title || item.domain}</h3>
+              <p class="item-domain">${item.domain}</p>
+            </a>
+            <div class="item-actions">
+              <select class="type-select" data-id="${item.id}">
+                <option value="article" ${item.type === 'article' ? 'selected' : ''}>Article</option>
+                <option value="video" ${item.type === 'video' ? 'selected' : ''}>Video</option>
+                <option value="podcast" ${item.type === 'podcast' ? 'selected' : ''}>Podcast</option>
+                <option value="tweet" ${item.type === 'tweet' ? 'selected' : ''}>Tweet</option>
+                <option value="linkedin" ${item.type === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
+                <option value="other" ${item.type === 'other' ? 'selected' : ''}>Other</option>
+              </select>
+              <button class="action-btn" data-action="read" data-id="${item.id}" title="${item.is_read ? 'Mark unread' : 'Mark read'}">${item.is_read ? '◉' : '○'}</button>
+              <button class="action-btn" data-action="share" data-id="${item.id}" title="Share">↗</button>
+              <button class="action-btn" data-action="archive" data-id="${item.id}" title="${item.is_archived ? 'Unarchive' : 'Archive'}">${item.is_archived ? '↩' : '✓'}</button>
+              <button class="action-btn" data-action="delete" data-id="${item.id}" title="Delete">×</button>
+            </div>
+          </li>
+        `).join('');
+      }
+      updateCounts();
+    };
+
+    // ============================================
+    // DATA OPERATIONS
+    // ============================================
+    const fetchItems = async () => {
+      const { data, error } = await supabase
+        .from('items')
+        .select('*')
+        .order('saved_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching items:', error);
+        showToast('Failed to load items');
+      } else {
+        items = data || [];
+        renderItems();
+      }
+    };
+
+    const addItem = async () => {
+      let url = $('#new-url').value.trim();
+      if (!url) return;
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+
+      const title = $('#new-title').value.trim();
+
+      const { error } = await supabase.from('items').insert({
+        user_id: currentUser.id,
+        url,
+        title: title || extractDomain(url),
+        type: detectContentType(url),
+        domain: extractDomain(url),
+        saved_at: new Date().toISOString(),
+        is_read: false,
+        is_archived: false,
+      });
+
+      if (error) {
+        showToast('Failed to save');
+        console.error(error);
+      } else {
+        showToast('Saved to AntiLibrary');
+        $('#new-url').value = '';
+        $('#new-title').value = '';
+        hide($('#add-form'));
+        $('#toggle-add-btn').textContent = '+';
+        fetchItems();
+      }
+    };
+
+    const updateItem = async (id, updates) => {
+      const { error } = await supabase.from('items').update(updates).eq('id', id);
+      if (error) {
+        showToast('Failed to update');
+        console.error(error);
+      } else {
+        fetchItems();
+      }
+    };
+
+    const deleteItem = async (id) => {
+      const { error } = await supabase.from('items').delete().eq('id', id);
+      if (error) {
+        showToast('Failed to delete');
+        console.error(error);
+      } else {
+        showToast('Deleted');
+        fetchItems();
+      }
+    };
+
+    const shareItem = async (item) => {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: item.title, url: item.url });
+        } catch (e) {
+          if (e.name !== 'AbortError') {
+            navigator.clipboard.writeText(item.url);
+            showToast('Link copied!');
+          }
+        }
+      } else {
+        navigator.clipboard.writeText(item.url);
+        showToast('Link copied!');
+      }
+    };
+
+    // ============================================
+    // AUTH
+    // ============================================
+    const handleAuth = async (e) => {
+      e.preventDefault();
+      const email = $('#auth-email').value;
+      const btn = $('#auth-submit');
+      const msg = $('#auth-message');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname },
+      });
+
+      if (error) {
+        msg.textContent = error.message;
+        msg.style.color = '#c53030';
+      } else {
+        msg.textContent = 'Check your email for the magic link!';
+        msg.style.color = '#2d7d32';
+      }
+      show(msg);
+      btn.disabled = false;
+      btn.textContent = 'Send Magic Link';
+    };
+
+    const signOut = async () => {
+      await supabase.auth.signOut();
+      currentUser = null;
+      items = [];
+      hide($('#app-screen'));
+      show($('#auth-screen'));
+    };
+
+    // ============================================
+    // INIT
+    // ============================================
+    const init = async () => {
+      // Check URL params for bookmarklet/shortcut
+      const params = new URLSearchParams(window.location.search);
+      const urlParam = params.get('url');
+      const titleParam = params.get('title');
+
+      // Check auth
+      const { data: { session } } = await supabase.auth.getSession();
+
+      hide($('#loading-screen'));
+
+      if (session?.user) {
+        currentUser = session.user;
+        $('#user-email').textContent = currentUser.email;
+        show($('#app-screen'));
+        await fetchItems();
+
+        // Handle URL params
+        if (urlParam) {
+          $('#new-url').value = decodeURIComponent(urlParam);
+          if (titleParam) $('#new-title').value = decodeURIComponent(titleParam);
+          show($('#add-form'));
+          $('#toggle-add-btn').textContent = '×';
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } else {
+        show($('#auth-screen'));
+      }
+
+      // Auth state listener
+      supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session?.user) {
+          currentUser = session.user;
+          $('#user-email').textContent = currentUser.email;
+          hide($('#auth-screen'));
+          show($('#app-screen'));
+          await fetchItems();
+        }
+      });
+    };
+
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      // Auth
+      $('#auth-form').addEventListener('submit', handleAuth);
+      $('#sign-out-btn').addEventListener('click', signOut);
+
+      // Add form
+      $('#toggle-add-btn').addEventListener('click', () => {
+        const form = $('#add-form');
+        if (form.classList.contains('hidden')) {
+          show(form);
+          $('#toggle-add-btn').textContent = '×';
+          $('#new-url').focus();
+        } else {
+          hide(form);
+          $('#toggle-add-btn').textContent = '+';
+        }
+      });
+
+      $('#save-btn').addEventListener('click', addItem);
+      $('#new-url').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !$('#new-title').value) addItem();
+      });
+      $('#new-title').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addItem();
+      });
+
+      // Search
+      $('#search-input').addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        renderItems();
+      });
+
+      // Status filters
+      $('#status-filters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('filter-btn')) {
+          $$('#status-filters .filter-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          statusFilter = e.target.dataset.filter;
+          renderItems();
+        }
+      });
+
+      // Type filters
+      $('#type-filters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('type-btn')) {
+          $$('#type-filters .type-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          typeFilter = e.target.dataset.type;
+          renderItems();
+        }
+      });
+
+      // Item actions (delegated)
+      $('#items-list').addEventListener('click', (e) => {
+        const btn = e.target.closest('.action-btn');
+        if (!btn) return;
+
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+        const item = items.find(i => i.id === id);
+
+        if (action === 'read') {
+          updateItem(id, { is_read: !item.is_read });
+        } else if (action === 'archive') {
+          updateItem(id, { is_archived: !item.is_archived });
+        } else if (action === 'delete') {
+          deleteItem(id);
+        } else if (action === 'share') {
+          shareItem(item);
+        }
+      });
+
+      // Type select change
+      $('#items-list').addEventListener('change', (e) => {
+        if (e.target.classList.contains('type-select')) {
+          updateItem(e.target.dataset.id, { type: e.target.value });
+        }
+      });
+
+      // Mark as read when clicking link
+      $('#items-list').addEventListener('click', (e) => {
+        const link = e.target.closest('.item-link');
+        if (link && !link.classList.contains('read')) {
+          updateItem(link.dataset.id, { is_read: true });
+        }
+      });
+
+      // Init
+      init();
+    });
+  </script>
+</body>
+</html>
