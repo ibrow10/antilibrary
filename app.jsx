@@ -9,7 +9,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_waTr_uFc60uGxrGPDtClSw_UCuCxo8s';
 
 // Chrome Extension ID - get this from chrome://extensions after installing the extension
 // Look for the "ID" field under your AntiLibrary extension
-const CHROME_EXTENSION_ID = 'YOUR_EXTENSION_ID_HERE';
+const CHROME_EXTENSION_ID = 'lmdbclpgjpidnpmjnphcefplomafpbfj';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
