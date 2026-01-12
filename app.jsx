@@ -206,6 +206,8 @@ export default function AntiLibrary() {
   const [toast, setToast] = useState('');
   const [quickSaveMode, setQuickSaveMode] = useState(false);
   const [quickSaveStatus, setQuickSaveStatus] = useState(null); // 'saving', 'success', 'error'
+  const [showShortcutSetup, setShowShortcutSetup] = useState(false);
+  const [sessionData, setSessionData] = useState(null);
 
   // Check for URL params (for bookmarklet/shortcut)
   useEffect(() => {
@@ -236,6 +238,7 @@ export default function AntiLibrary() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      setSessionData(session);
       if (session?.user) {
         fetchItems();
         // Sync session to Chrome extension
@@ -247,6 +250,7 @@ export default function AntiLibrary() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      setSessionData(session);
       if (session?.user) {
         fetchItems();
         // Sync session to Chrome extension on login or token refresh
@@ -513,6 +517,68 @@ export default function AntiLibrary() {
 
       {/* Toast */}
       {toast && <div style={styles.toast}>{toast}</div>}
+      
+      {/* iOS Shortcut Setup Modal */}
+      {showShortcutSetup && sessionData && (
+        <div style={styles.modalOverlay} onClick={() => setShowShortcutSetup(false)}>
+          <div style={styles.modal} onClick={e => e.stopPropagation()}>
+            <h2 style={styles.modalTitle}>iOS Shortcut Setup</h2>
+            <p style={styles.modalSubtitle}>Copy these values into your iOS Shortcut</p>
+            
+            <div style={styles.credentialBox}>
+              <label style={styles.credentialLabel}>Refresh Token</label>
+              <input 
+                type="text" 
+                readOnly 
+                value={sessionData.refresh_token} 
+                style={styles.credentialInput}
+                onClick={e => e.target.select()}
+              />
+            </div>
+            
+            <div style={styles.credentialBox}>
+              <label style={styles.credentialLabel}>User ID</label>
+              <input 
+                type="text" 
+                readOnly 
+                value={sessionData.user.id} 
+                style={styles.credentialInput}
+                onClick={e => e.target.select()}
+              />
+            </div>
+            
+            <div style={styles.credentialBox}>
+              <label style={styles.credentialLabel}>Supabase URL</label>
+              <input 
+                type="text" 
+                readOnly 
+                value={SUPABASE_URL} 
+                style={styles.credentialInput}
+                onClick={e => e.target.select()}
+              />
+            </div>
+            
+            <div style={styles.credentialBox}>
+              <label style={styles.credentialLabel}>API Key</label>
+              <input 
+                type="text" 
+                readOnly 
+                value={SUPABASE_ANON_KEY} 
+                style={styles.credentialInput}
+                onClick={e => e.target.select()}
+              />
+            </div>
+            
+            <p style={styles.modalNote}>
+              ⚠️ Keep these private! They give access to your AntiLibrary.
+            </p>
+            
+            <button onClick={() => setShowShortcutSetup(false)} style={styles.modalButton}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <header style={styles.header}>
@@ -711,7 +777,13 @@ export default function AntiLibrary() {
       </main>
 
       <footer style={styles.footer}>
-        AntiLibrary • The unread shapes who you are
+        <span>AntiLibrary • The unread shapes who you are</span>
+        <button 
+          onClick={() => setShowShortcutSetup(true)} 
+          style={styles.footerLink}
+        >
+          iOS Shortcut Setup
+        </button>
       </footer>
     </div>
   );
@@ -1186,5 +1258,95 @@ const styles = {
     fontSize: '12px',
     fontFamily: "'Inter', -apple-system, sans-serif",
     fontStyle: 'italic',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
+  footerLink: {
+    background: 'none',
+    border: 'none',
+    color: '#888',
+    fontSize: '12px',
+    cursor: 'pointer',
+    textDecoration: 'underline',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  
+  // Modal styles
+  modalOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1000,
+    padding: '20px',
+  },
+  modal: {
+    backgroundColor: '#fff',
+    borderRadius: '16px',
+    padding: '24px',
+    maxWidth: '400px',
+    width: '100%',
+    maxHeight: '80vh',
+    overflow: 'auto',
+  },
+  modalTitle: {
+    fontSize: '20px',
+    fontWeight: '600',
+    margin: '0 0 4px',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  modalSubtitle: {
+    fontSize: '14px',
+    color: '#666',
+    margin: '0 0 20px',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  credentialBox: {
+    marginBottom: '16px',
+  },
+  credentialLabel: {
+    display: 'block',
+    fontSize: '12px',
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: '4px',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  credentialInput: {
+    width: '100%',
+    padding: '10px 12px',
+    fontSize: '12px',
+    fontFamily: 'monospace',
+    border: '1px solid #ddd',
+    borderRadius: '6px',
+    backgroundColor: '#f5f5f5',
+    boxSizing: 'border-box',
+  },
+  modalNote: {
+    fontSize: '12px',
+    color: '#c53030',
+    margin: '16px 0',
+    padding: '12px',
+    backgroundColor: '#fef2f2',
+    borderRadius: '8px',
+    fontFamily: "'Inter', -apple-system, sans-serif",
+  },
+  modalButton: {
+    width: '100%',
+    padding: '12px',
+    backgroundColor: '#1a1a1a',
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    fontFamily: "'Inter', -apple-system, sans-serif",
   },
 };
