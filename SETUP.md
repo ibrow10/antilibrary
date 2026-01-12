@@ -29,8 +29,10 @@ CREATE TABLE items (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   url TEXT NOT NULL,
   title TEXT NOT NULL,
+  description TEXT,
   type TEXT DEFAULT 'article',
   domain TEXT,
+  tags TEXT[],
   saved_at TIMESTAMPTZ DEFAULT NOW(),
   is_read BOOLEAN DEFAULT FALSE,
   is_archived BOOLEAN DEFAULT FALSE,
@@ -38,9 +40,10 @@ CREATE TABLE items (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create index for faster queries
+-- Create indexes for faster queries
 CREATE INDEX items_user_id_idx ON items(user_id);
 CREATE INDEX items_saved_at_idx ON items(saved_at DESC);
+CREATE INDEX items_tags_idx ON items USING GIN(tags);
 
 -- Enable Row Level Security
 ALTER TABLE items ENABLE ROW LEVEL SECURITY;
@@ -66,6 +69,21 @@ ALTER PUBLICATION supabase_realtime ADD TABLE items;
 ```
 
 You should see "Success. No rows returned" - that's correct.
+
+### Step 2b: Add Description and Tags (if upgrading)
+
+If you already have the items table and want to add the new description and tags features, run this migration:
+
+```sql
+-- Add description column for link previews
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description TEXT;
+
+-- Add tags column (array of text) for categorization
+ALTER TABLE items ADD COLUMN IF NOT EXISTS tags TEXT[];
+
+-- Create index for faster tag filtering
+CREATE INDEX IF NOT EXISTS items_tags_idx ON items USING GIN(tags);
+```
 
 ### Step 3: Configure Authentication
 

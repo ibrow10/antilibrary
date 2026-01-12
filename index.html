@@ -197,6 +197,167 @@
       border-color: var(--accent);
     }
     
+    .input-small {
+      padding: 10px 14px;
+      font-size: 14px;
+    }
+    
+    /* Link Preview */
+    .link-preview {
+      background: #f9f9f7;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    
+    .link-preview.visible {
+      display: block;
+      animation: slideIn 0.2s ease;
+    }
+    
+    .link-preview.loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--text-muted);
+    }
+    
+    .preview-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .preview-description {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    
+    .preview-domain {
+      font-size: 12px;
+      color: var(--text-faint);
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .preview-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    
+    /* Tags Input */
+    .tags-section {
+      margin-bottom: 12px;
+    }
+    
+    .tags-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .tags-input-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      min-height: 44px;
+      align-items: center;
+      cursor: text;
+    }
+    
+    .tags-input-wrapper:focus-within {
+      border-color: var(--accent);
+    }
+    
+    .tag-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: #e8e6e3;
+      border-radius: 20px;
+      font-size: 12px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+    }
+    
+    .tag-chip-remove {
+      cursor: pointer;
+      opacity: 0.6;
+      font-size: 14px;
+      line-height: 1;
+    }
+    
+    .tag-chip-remove:hover {
+      opacity: 1;
+    }
+    
+    .tags-input {
+      border: none;
+      outline: none;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      flex: 1;
+      min-width: 100px;
+      padding: 4px 0;
+    }
+    
+    .tags-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+    }
+    
+    .tags-suggestions.visible {
+      display: block;
+    }
+    
+    .tag-suggestion {
+      padding: 10px 14px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .tag-suggestion:hover, .tag-suggestion.selected {
+      background: #f5f5f5;
+    }
+    
+    .tag-suggestion-new {
+      color: var(--accent);
+      font-weight: 500;
+    }
+    
+    .tags-input-container {
+      position: relative;
+    }
+    
     .save-btn {
       width: 100%;
       padding: 14px;
@@ -208,6 +369,11 @@
       font-weight: 500;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
+    }
+    
+    .save-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     
     /* Search */
@@ -246,7 +412,7 @@
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     
     .filter-group {
@@ -287,6 +453,38 @@
     .type-btn.active {
       background: var(--border);
       color: var(--text);
+    }
+    
+    /* Tag Filters */
+    .tag-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tag-filter-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 20px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.15s;
+    }
+    
+    .tag-filter-btn:hover {
+      border-color: var(--text-muted);
+    }
+    
+    .tag-filter-btn.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
     }
     
     /* Items */
@@ -360,10 +558,43 @@
       letter-spacing: -0.2px;
     }
     
+    .item-description {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 8px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .item-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
     .item-domain {
       font-size: 13px;
       color: var(--text-muted);
       font-family: 'Inter', sans-serif;
+    }
+    
+    .item-tags {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    
+    .item-tag {
+      padding: 2px 8px;
+      background: #f0f0f0;
+      border-radius: 12px;
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-muted);
     }
     
     .item-actions {
@@ -472,6 +703,11 @@
       margin-right: 12px;
     }
     
+    .spinner-small {
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+    
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } }
     @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } }
@@ -525,7 +761,28 @@
         <!-- Add Form -->
         <div id="add-form" class="add-form hidden">
           <input type="url" id="new-url" class="input" placeholder="Paste URL here...">
-          <input type="text" id="new-title" class="input" placeholder="Title (optional)">
+          
+          <!-- Link Preview -->
+          <div id="link-preview" class="link-preview">
+            <img id="preview-image" class="preview-image" style="display: none;">
+            <div id="preview-title" class="preview-title"></div>
+            <div id="preview-description" class="preview-description"></div>
+            <div id="preview-domain" class="preview-domain"></div>
+          </div>
+          
+          <input type="text" id="new-title" class="input" placeholder="Title (optional - auto-fetched from URL)">
+          
+          <!-- Tags Input -->
+          <div class="tags-section">
+            <label class="tags-label">Tags (optional)</label>
+            <div class="tags-input-container">
+              <div class="tags-input-wrapper" id="tags-input-wrapper">
+                <input type="text" id="tags-input" class="tags-input" placeholder="Add tags...">
+              </div>
+              <div id="tags-suggestions" class="tags-suggestions"></div>
+            </div>
+          </div>
+          
           <button class="save-btn" id="save-btn">Save to AntiLibrary</button>
         </div>
 
@@ -553,6 +810,11 @@
             <button class="type-btn" data-type="tweet">𝕏</button>
             <button class="type-btn" data-type="linkedin">in</button>
           </div>
+        </div>
+        
+        <!-- Tag Filters -->
+        <div id="tag-filters" class="tag-filters hidden">
+          <button class="tag-filter-btn active" data-tag="all">All Tags</button>
         </div>
       </header>
 
@@ -587,9 +849,14 @@
     // ============================================
     let currentUser = null;
     let items = [];
+    let allTags = [];
+    let selectedTags = [];
     let statusFilter = 'unread';
     let typeFilter = 'all';
+    let tagFilter = 'all';
     let searchQuery = '';
+    let previewData = null;
+    let fetchingPreview = false;
 
     // ============================================
     // UTILITIES
@@ -617,6 +884,13 @@
       if (diffDays < 7) return `${diffDays}d ago`;
       return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     };
+    
+    const escapeHtml = (text) => {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    };
 
     // ============================================
     // DOM HELPERS
@@ -634,6 +908,174 @@
     };
 
     // ============================================
+    // LINK PREVIEW
+    // ============================================
+    const fetchLinkPreview = async (url) => {
+      if (!url || fetchingPreview) return;
+      
+      try {
+        new URL(url);
+      } catch {
+        return;
+      }
+      
+      const preview = $('#link-preview');
+      preview.className = 'link-preview loading visible';
+      preview.innerHTML = `
+        <svg class="spinner-small" width="16" height="16" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" opacity="0.25"/>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+        Fetching preview...
+      `;
+      
+      fetchingPreview = true;
+      
+      try {
+        // Use a free metadata API
+        const response = await fetch(`https://api.microlink.io?url=${encodeURIComponent(url)}`);
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data) {
+          previewData = {
+            title: data.data.title || '',
+            description: data.data.description || '',
+            image: data.data.image?.url || '',
+            domain: extractDomain(url)
+          };
+          
+          // Update preview UI
+          preview.className = 'link-preview visible';
+          preview.innerHTML = `
+            ${previewData.image ? `<img src="${previewData.image}" class="preview-image" onerror="this.style.display='none'">` : ''}
+            <div class="preview-title">${escapeHtml(previewData.title)}</div>
+            ${previewData.description ? `<div class="preview-description">${escapeHtml(previewData.description)}</div>` : ''}
+            <div class="preview-domain">${escapeHtml(previewData.domain)}</div>
+          `;
+          
+          // Auto-fill title if empty
+          if (!$('#new-title').value && previewData.title) {
+            $('#new-title').value = previewData.title;
+          }
+        } else {
+          preview.className = 'link-preview';
+          previewData = null;
+        }
+      } catch (error) {
+        console.error('Preview fetch error:', error);
+        preview.className = 'link-preview';
+        previewData = null;
+      }
+      
+      fetchingPreview = false;
+    };
+    
+    // Debounce function
+    const debounce = (fn, delay) => {
+      let timeout;
+      return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn(...args), delay);
+      };
+    };
+    
+    const debouncedFetchPreview = debounce(fetchLinkPreview, 500);
+
+    // ============================================
+    // TAGS
+    // ============================================
+    const updateAllTags = () => {
+      const tagSet = new Set();
+      items.forEach(item => {
+        if (item.tags && Array.isArray(item.tags)) {
+          item.tags.forEach(tag => tagSet.add(tag));
+        }
+      });
+      allTags = Array.from(tagSet).sort();
+      renderTagFilters();
+    };
+    
+    const renderTagFilters = () => {
+      const container = $('#tag-filters');
+      if (allTags.length === 0) {
+        hide(container);
+        return;
+      }
+      
+      show(container);
+      container.innerHTML = `
+        <button class="tag-filter-btn ${tagFilter === 'all' ? 'active' : ''}" data-tag="all">All Tags</button>
+        ${allTags.map(tag => `
+          <button class="tag-filter-btn ${tagFilter === tag ? 'active' : ''}" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>
+        `).join('')}
+      `;
+    };
+    
+    const renderSelectedTags = () => {
+      const wrapper = $('#tags-input-wrapper');
+      const input = $('#tags-input');
+      
+      // Remove existing tag chips
+      wrapper.querySelectorAll('.tag-chip').forEach(el => el.remove());
+      
+      // Add tag chips before input
+      selectedTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${escapeHtml(tag)}<span class="tag-chip-remove" data-tag="${escapeHtml(tag)}">×</span>`;
+        wrapper.insertBefore(chip, input);
+      });
+    };
+    
+    const showTagSuggestions = (query) => {
+      const container = $('#tags-suggestions');
+      const q = query.toLowerCase().trim();
+      
+      if (!q) {
+        container.className = 'tags-suggestions';
+        return;
+      }
+      
+      const matching = allTags.filter(tag => 
+        tag.toLowerCase().includes(q) && !selectedTags.includes(tag)
+      );
+      
+      const exactMatch = allTags.some(tag => tag.toLowerCase() === q);
+      const alreadySelected = selectedTags.some(tag => tag.toLowerCase() === q);
+      
+      let html = matching.map(tag => 
+        `<div class="tag-suggestion" data-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</div>`
+      ).join('');
+      
+      // Option to create new tag
+      if (!exactMatch && !alreadySelected && q.length > 0) {
+        html += `<div class="tag-suggestion tag-suggestion-new" data-tag="${escapeHtml(q)}" data-new="true">+ Create "${escapeHtml(q)}"</div>`;
+      }
+      
+      if (html) {
+        container.innerHTML = html;
+        container.className = 'tags-suggestions visible';
+      } else {
+        container.className = 'tags-suggestions';
+      }
+    };
+    
+    const addTag = (tag) => {
+      const normalized = tag.trim().toLowerCase();
+      if (normalized && !selectedTags.includes(normalized)) {
+        selectedTags.push(normalized);
+        renderSelectedTags();
+      }
+      $('#tags-input').value = '';
+      $('#tags-suggestions').className = 'tags-suggestions';
+    };
+    
+    const removeTag = (tag) => {
+      selectedTags = selectedTags.filter(t => t !== tag);
+      renderSelectedTags();
+    };
+
+    // ============================================
     // RENDER
     // ============================================
     const updateCounts = () => {
@@ -647,11 +1089,16 @@
         if (statusFilter === 'unread' && (item.is_read || item.is_archived)) return false;
         if (statusFilter === 'archived' && !item.is_archived) return false;
         if (typeFilter !== 'all' && item.type !== typeFilter) return false;
+        if (tagFilter !== 'all') {
+          if (!item.tags || !item.tags.includes(tagFilter)) return false;
+        }
         if (searchQuery) {
           const q = searchQuery.toLowerCase();
           return item.title?.toLowerCase().includes(q) || 
                  item.url?.toLowerCase().includes(q) ||
-                 item.domain?.toLowerCase().includes(q);
+                 item.domain?.toLowerCase().includes(q) ||
+                 item.description?.toLowerCase().includes(q) ||
+                 (item.tags && item.tags.some(t => t.toLowerCase().includes(q)));
         }
         return true;
       });
@@ -676,8 +1123,16 @@
                 <span class="type-badge ${item.type}">${item.type}</span>
                 <span class="item-date">${formatDate(item.saved_at)}</span>
               </div>
-              <h3 class="item-title">${item.title || item.domain}</h3>
-              <p class="item-domain">${item.domain}</p>
+              <h3 class="item-title">${escapeHtml(item.title) || escapeHtml(item.domain)}</h3>
+              ${item.description ? `<p class="item-description">${escapeHtml(item.description)}</p>` : ''}
+              <div class="item-meta">
+                <span class="item-domain">${escapeHtml(item.domain)}</span>
+                ${item.tags && item.tags.length > 0 ? `
+                  <div class="item-tags">
+                    ${item.tags.map(tag => `<span class="item-tag">${escapeHtml(tag)}</span>`).join('')}
+                  </div>
+                ` : ''}
+              </div>
             </a>
             <div class="item-actions">
               <select class="type-select" data-id="${item.id}">
@@ -713,6 +1168,7 @@
         showToast('Failed to load items');
       } else {
         items = data || [];
+        updateAllTags();
         renderItems();
       }
     };
@@ -732,13 +1188,16 @@
       }
 
       const title = $('#new-title').value.trim();
+      const description = previewData?.description || '';
 
       const { error } = await supabaseClient.from('items').insert({
         user_id: currentUser.id,
         url,
-        title: title || extractDomain(url),
+        title: title || previewData?.title || extractDomain(url),
+        description: description,
         type: detectContentType(url),
         domain: extractDomain(url),
+        tags: selectedTags.length > 0 ? selectedTags : null,
         saved_at: new Date().toISOString(),
         is_read: false,
         is_archived: false,
@@ -754,8 +1213,13 @@
         }
       } else {
         showToast('Saved to AntiLibrary');
+        // Reset form
         $('#new-url').value = '';
         $('#new-title').value = '';
+        $('#link-preview').className = 'link-preview';
+        selectedTags = [];
+        renderSelectedTags();
+        previewData = null;
         hide($('#add-form'));
         $('#toggle-add-btn').textContent = '+';
         fetchItems();
@@ -858,11 +1322,14 @@
 
         // Handle URL params
         if (urlParam) {
-          $('#new-url').value = decodeURIComponent(urlParam);
+          const decodedUrl = decodeURIComponent(urlParam);
+          $('#new-url').value = decodedUrl;
           if (titleParam) $('#new-title').value = decodeURIComponent(titleParam);
           show($('#add-form'));
           $('#toggle-add-btn').textContent = '×';
           window.history.replaceState({}, document.title, window.location.pathname);
+          // Fetch preview for the URL
+          fetchLinkPreview(decodedUrl);
         }
       } else {
         show($('#auth-screen'));
@@ -895,7 +1362,7 @@
       $('#auth-form').addEventListener('submit', handleAuth);
       $('#sign-out-btn').addEventListener('click', signOut);
 
-      // Add form
+      // Add form toggle
       $('#toggle-add-btn').addEventListener('click', () => {
         const form = $('#add-form');
         if (form.classList.contains('hidden')) {
@@ -905,15 +1372,76 @@
         } else {
           hide(form);
           $('#toggle-add-btn').textContent = '+';
+          // Reset form state
+          $('#link-preview').className = 'link-preview';
+          selectedTags = [];
+          renderSelectedTags();
+          previewData = null;
+        }
+      });
+
+      // URL input - fetch preview on change
+      $('#new-url').addEventListener('input', (e) => {
+        const url = e.target.value.trim();
+        if (url) {
+          debouncedFetchPreview(url);
+        } else {
+          $('#link-preview').className = 'link-preview';
+          previewData = null;
         }
       });
 
       $('#save-btn').addEventListener('click', addItem);
       $('#new-url').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !$('#new-title').value) addItem();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addItem();
+        }
       });
       $('#new-title').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addItem();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addItem();
+        }
+      });
+      
+      // Tags input
+      $('#tags-input').addEventListener('input', (e) => {
+        showTagSuggestions(e.target.value);
+      });
+      
+      $('#tags-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          const value = e.target.value.trim();
+          if (value) {
+            addTag(value);
+          }
+        } else if (e.key === 'Backspace' && !e.target.value && selectedTags.length > 0) {
+          removeTag(selectedTags[selectedTags.length - 1]);
+        }
+      });
+      
+      $('#tags-input').addEventListener('blur', () => {
+        // Delay hiding to allow click on suggestions
+        setTimeout(() => {
+          $('#tags-suggestions').className = 'tags-suggestions';
+        }, 200);
+      });
+      
+      $('#tags-suggestions').addEventListener('click', (e) => {
+        const suggestion = e.target.closest('.tag-suggestion');
+        if (suggestion) {
+          addTag(suggestion.dataset.tag);
+        }
+      });
+      
+      $('#tags-input-wrapper').addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag-chip-remove')) {
+          removeTag(e.target.dataset.tag);
+        } else {
+          $('#tags-input').focus();
+        }
       });
 
       // Search
@@ -938,6 +1466,16 @@
           $$('#type-filters .type-btn').forEach(b => b.classList.remove('active'));
           e.target.classList.add('active');
           typeFilter = e.target.dataset.type;
+          renderItems();
+        }
+      });
+      
+      // Tag filters
+      $('#tag-filters').addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag-filter-btn')) {
+          $$('#tag-filters .tag-filter-btn').forEach(b => b.classList.remove('active'));
+          e.target.classList.add('active');
+          tagFilter = e.target.dataset.tag;
           renderItems();
         }
       });
